@@ -112,28 +112,42 @@ document.getElementById('fetchHerosButton').addEventListener('click', function()
     });
 
 
-document.getElementById('power-search').addEventListener('keyup', function() {
-    getPowerList().then(data => {
-        const searchValue = document.getElementById('power-search').value.trim();
-        document.getElementById('superheroCards').innerHTML = ''; // Clear the previous results
-        if (searchValue === '' || isNaN(searchValue)) {
-            return; // Early return if searchValue is invalid
-        }
-        const searchNumber = Number(searchValue);
-        const heroName =  "";
+    document.getElementById('power-search').addEventListener('keyup', function() {
+        getPowerList().then(globalPowersData => {
+            const searchValue = document.getElementById('power-search').value.trim();
+            document.getElementById('superheroCards').innerHTML = '';
 
-        const targetHero = globalHeroData.filter(hero => {
-            hero.id === searchNumber;
-            heroName = hero.name;
+            if (searchValue === '' || isNaN(searchValue)) {
+                return; // Early return if searchValue is invalid
+            }
+
+            const searchNumber = Number(searchValue); // Make sure this is the correct ID format
+            let heroName = "";
+
+            const targetHero = globalHeroData.find(hero => hero.id === searchNumber); // Use find to get a single hero
+            if (targetHero) {
+                heroName = targetHero.name;
+            }
+            console.log(heroName);
+
+            const filteredPowers = globalPowersData.filter(power => power.hero_names === heroName);
+
+            if (filteredPowers.length > 0) {
+                const powersList = document.createElement('ul');
+                for (const [key, value] of Object.entries(filteredPowers[0])) {
+                    if (value === "True") {
+                        const powerItem = document.createElement('li');
+                        powerItem.textContent = key;
+                        powersList.appendChild(powerItem);
+                    }
+                }
+                document.getElementById('superheroCards').appendChild(powersList);
+            }
+
+        }).catch(error => {
+            console.error('There has been a problem with displaying powers:', error);
         });
-
-        const filteredPowers = globalPowersData.filter(power => {
-            return power.name === heroName;
-        });
-
-    }).catch(error => {
-        console.error('There has been a problem with displaying powers:', error);
     });
-});
+
 
 
