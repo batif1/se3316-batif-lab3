@@ -5,6 +5,47 @@ const router = express.Router();
 const fs = require('fs');
 const { parse } = require('path');
 
+//MongoDB
+
+
+const uri = "mongodb+srv://basharatif2003:mkQqf26u9xvDfqn@cluster0.pykducv.mongodb.net/?retryWrites=true&w=majority";
+
+const mongoose = require('mongoose');
+mongoose.connect(uri, {
+  useNewUrlParser: true,
+});
+
+const db = mongoose.connection;
+db.on('error',(error)=> {console.error(error)})
+db.once('open', ()=> console.log("Connected"))
+console.log('Connected to the database (mongoose)')
+const Schema = mongoose.Schema;
+
+
+const superheroSchema = new mongoose.Schema({
+   listName:{
+        type: String,
+        required: true
+    },
+    superhero:[
+        {
+        id: String,
+        name: String,
+        Gender: String,
+        Eyecolor: String,
+        Race: String,
+        Haircolor : String,
+        Height:String,
+        Publisher : String,
+        Skincolor :String,
+        Alignment: String,
+        Weight : String
+        }
+   ]
+
+   })
+
+module.exports = mongoose.model('Superhero', superheroSchema)
 
 app.use(express.json());
 
@@ -175,10 +216,6 @@ app.use('/api/heros', router)
 app.listen(port, () => {
     console.log(`Listening on port ' ${port})`);
 });
-
-
-
-
 
 
 //Test Put
