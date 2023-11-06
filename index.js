@@ -28,8 +28,13 @@ db.once('open', () => {
 
 
 const superheroSchema = new mongoose.Schema({
-    numbers: [Number]
-   })
+    listName: {
+        type: String,
+        required: true,
+        unique: true // Ensures that each list name is unique
+      },
+      items: [Number] // Array of numbers for each list
+    });
 
 const SuperHeroListDB = mongoose.model('superHeroListDB', superheroSchema);
 
@@ -215,82 +220,100 @@ router.put('/:id', async (req, res) => {
 
 });
 
-superheroLists = {};
-
-app.post('/api/lists', (req, res) => {
+app.post('/api/lists', async (req, res) => {
     const { listName } = req.body; //listName is an attribute of the JSON
 
     //Error Handling if the list already exists
-    if (superheroLists[listName]) {
-      return res.status(400).send('List name already exists.');
+    try{
+        const listExists = await SuperHeroListDB.findOne({ listName: listName});
+        if (listExists){
+            return res.status(400).send('List name already exists.');
+        }
+
+        const newList = new SuperHeroListDB({
+            listName: listName
+        });
+
+        await newList.save();
+        res.status(201).send('New superhero list created.');
+    }catch (error){
+        console.error(error);
+        res.status(500).send('Server error when creating a new list.');
     }
-
-    //Creating a new list at the key of the listName
-    superheroLists[listName] = [];
-    res.status(201).send('New superhero list created.');
-
-    console.log(superheroLists)
   });
 
-
-
-
 //Updating superhero list (A LIST HAS TO BE CREATED FIRST)
-app.put('/api/lists/:listName', (req, res) => {
+app.put('/api/lists/:listName', async (req, res) => {
     const { listName } = req.params;
     const { superheroIds } = req.body;//"superheroIds" needs to be in the body
 
-    //If the list does not exist
-    if (!superheroLists[listName]) {
-      return res.status(404).send('List name does not exist.');
+    try {
+        const list = await SuperHeroListDB.findOne({ listName: listName });
+
+        if (!list){
+            return res.status(404).send('List not found.');
+        }
+
+        list.items = superheroIds;
+        await list.save();
+        res.send('List updated with DB.');
+    }catch (error){
+        console.error(error);
+        res.status(500).send('Server error when updating a list.');
     }
-
-    superheroLists[listName] = superheroIds; // Replace existing list with new values
-    res.send('Superhero list updated.');
-
-    console.log(superheroLists)
-
   });
 
 //GET Request for the list
 
-app.get('/api/lists/:listName', (req, res) => {
+app.get('/api/lists/:listName', async (req, res) => {
     const { listName } = req.params;
 
-    if (!superheroLists[listName]) {
-      return res.status(404).send('List not found.');
-    }
+    try {
+        const list = await SuperHeroListDB.findOne({ listName: listName });
 
-    res.json(superheroLists[listName]);
+        if (!list){
+            return res.status(404).send('List not found.');
+        }
+
+        res.json(list.items)
+    }catch(error){
+        console.error(error);
+        res.status(500).send('Server error when getting a list.');
+    }
   });
 
 
 //DELETE Request for the list
-app.delete('/api/lists/:listName', (req, res) => {
+app.delete('/api/lists/:listName', async (req, res) => {
     const { listName } = req.params;
 
-    if (!superheroLists[listName]) {
-      return res.status(404).send('List not found.');
+    try {
+        const result = await SuperHeroListDB.deleteOne({ listName: listName });
+        if (result.deletedCount === 0){
+            return res.status(404).send('List not found.');
+        }
+        res.send('List deleted.');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Server error when getting a list.');
     }
-
-    delete superheroLists[listName];
-    res.send('List deleted.');
   });
 
   app.get('/api/lists/information/:listName', async (req, res) => {
     const { listName } = req.params;
-
-    // If the list does not exist
-    if (!superheroLists[listName]) {
-      return res.status(404).send('List not found.');
-    }
 
     try {
       const heros = await getHeros();
       const powers = await getPowers();
       const results = [];
 
-      for (const each of superheroLists[listName]) {
+      const list = await SuperHeroListDB.findOne({ listName: listName });
+
+      if (!list){
+        return res.status(404).send('List not found.');
+    }
+
+      for (const each of list.items) {
         const id = parseInt(each, 10);
         console.log("Here is the ID:")
         console.log(id);
