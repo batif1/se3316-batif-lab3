@@ -13,39 +13,28 @@ const uri = "mongodb+srv://basharatif2003:mkQqf26u9xvDfqn@cluster0.pykducv.mongo
 const mongoose = require('mongoose');
 mongoose.connect(uri, {
   useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 
 const db = mongoose.connection;
-db.on('error',(error)=> {console.error(error)})
-db.once('open', ()=> console.log("Connected"))
-console.log('Connected to the database (mongoose)')
-const Schema = mongoose.Schema;
+
+db.on('error', (error) => {
+    console.error(error);
+});
+
+db.once('open', () => {
+    console.log("Connected to MongoDB database!");
+});
 
 
 const superheroSchema = new mongoose.Schema({
-   listName:{
-        type: String,
-        required: true
-    },
-    superhero:[
-        {
-        id: String,
-        name: String,
-        Gender: String,
-        Eyecolor: String,
-        Race: String,
-        Haircolor : String,
-        Height:String,
-        Publisher : String,
-        Skincolor :String,
-        Alignment: String,
-        Weight : String
-        }
-   ]
-
+    numbers: [Number]
    })
 
-module.exports = mongoose.model('Superhero', superheroSchema)
+const SuperHeroListDB = mongoose.model('superHeroListDB', superheroSchema);
+
+
+module.exports = SuperHeroListDB;
 
 app.use(express.json());
 
