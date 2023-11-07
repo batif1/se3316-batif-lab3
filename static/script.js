@@ -1,5 +1,6 @@
 let globalHeroData = [];
 let globalPowersData = [];
+let globalSearchResults = [];
 
 //Displaying heros
 function results(list){
@@ -74,12 +75,33 @@ getHeroList();
 
 //http://localhost:3000/api/search/name/a?n=2
 
-    document.getElementById('search-input').addEventListener('keyup', function() {
-                // Clear the previous results
+
+function search(field, query, n) {
+    return fetch(`/api/search/${field}/${query}?n=${n}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data =>{
+            globalSearchResults = data;
+            return data;
+        })
+        .catch(error => {
+            console.error('There has been a problem with your fetch operation:', error);
+        })
+}
+
+document.getElementById('search-button').addEventListener('click', async function() {
+    const button = this;
+    button.disabled = true;
+    // Clear the previous results
                 document.getElementById('superheroCards').innerHTML = ''; // Clear the previous results
 
                 const searchCategory = document.getElementById('search-category').value;
                 const searchValue = document.getElementById('search-input').value.trim().toLowerCase();
+                const searchNumber = document.getElementById('search-number').value.trim().toLowerCase();
 
                 if (searchValue === '') {
                     return; // Early return if searchValue is invalid
@@ -87,20 +109,19 @@ getHeroList();
 
                 //If the search is by ID
                 if (searchCategory === 'id'){
-                    if (searchValue === NaN) {
-                        return; // Early return if searchValue is invalid
+
+                    if (searchCategory === 'id' && !isNaN(searchValue)) {
+                        try {
+                            const filteredHeros = await search(searchCategory, searchValue, Number(searchNumber));
+                            results(filteredHeros);
+                        } catch (error) {
+                            console.error('Search failed:', error);
+                        } finally {
+                            button.disabled = false; // Re-enable the button after the search is complete
+                        }
+                    } else {
+                        button.disabled = false; // Re-enable the button if the searchCategory is not 'id'
                     }
-                    // Convert searchValue to a number for accurate comparison
-                    const searchNumber = Number(searchValue);
-
-                    // Filter the globalHeroData array
-                    const filteredHeros = globalHeroData.filter(hero => {
-                        return hero.id === searchNumber;
-                    });
-
-                    // Call the results function to display the filtered heroes
-                    console.log(filteredHeros);
-                    results(filteredHeros);
                 }
 
                 if (searchCategory === 'name'){
@@ -109,7 +130,6 @@ getHeroList();
                         return heroNameLower.includes(searchValue);
                     });
 
-                    results(filteredHeros);
                 }
 
                 if (searchCategory === 'race'){
