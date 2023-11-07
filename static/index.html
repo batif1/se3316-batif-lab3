@@ -5,17 +5,24 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <button id="fetchHerosButton">Complete SuperHero List</button>
+    <h1>______________________________</h1>
+    <h1 id="big-title">Find your next favorite superhero...</h1>
 
-    <div class="search-container">
-        <input type="text" id="hero-search" name="hero-search" placeholder="Search for a super hero by ID">
-    </div>
 
-    <div class="search-container">
-        <input type="text" id="power-search" name="power-search" placeholder="Search for a super powers by ID">
-    </div>
+    <select id="search-category">
+        <option value="id">Id</option>
+        <option value="name">Name</option>
+        <option value="race">Race</option>
+        <option value="publisher">Publisher</option>
+        <option value="power">Power</option>
+      </select>
+      <input type="text" id="search-input" placeholder="Search..." />
 
     <ul id="superheroCards" class="card-list"></ul>
+
+
+
+
 
     <script src="script.js"></script>
 </body>

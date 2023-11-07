@@ -69,85 +69,135 @@ function getPowerList() {
         });
 }
 
+getPowerList();
+getHeroList();
+
+//http://localhost:3000/api/search/name/a?n=2
+
+    document.getElementById('search-input').addEventListener('keyup', function() {
+                // Clear the previous results
+                document.getElementById('superheroCards').innerHTML = ''; // Clear the previous results
+
+                const searchCategory = document.getElementById('search-category').value;
+                const searchValue = document.getElementById('search-input').value.trim().toLowerCase();
+
+                if (searchValue === '') {
+                    return; // Early return if searchValue is invalid
+                }
+
+                //If the search is by ID
+                if (searchCategory === 'id'){
+                    if (searchValue === NaN) {
+                        return; // Early return if searchValue is invalid
+                    }
+                    // Convert searchValue to a number for accurate comparison
+                    const searchNumber = Number(searchValue);
+
+                    // Filter the globalHeroData array
+                    const filteredHeros = globalHeroData.filter(hero => {
+                        return hero.id === searchNumber;
+                    });
+
+                    // Call the results function to display the filtered heroes
+                    console.log(filteredHeros);
+                    results(filteredHeros);
+                }
+
+                if (searchCategory === 'name'){
+                    const filteredHeros = globalHeroData.filter(hero => {
+                        const heroNameLower = hero.name.toLowerCase();
+                        return heroNameLower.includes(searchValue);
+                    });
+
+                    results(filteredHeros);
+                }
+
+                if (searchCategory === 'race'){
+                    const filteredHeros = globalHeroData.filter(hero => {
+                        const heroRaceLower = hero.Race.toLowerCase();
+                        return heroRaceLower.includes(searchValue);
+                    });
+
+                    results(filteredHeros);
+                }
 
 
+                if(searchCategory === 'publisher'){
+                    const filteredHeros = globalHeroData.filter(hero => {
+                        const heroPublisherLower = hero.Publisher.toLowerCase();
+                        return heroPublisherLower.includes(searchValue);
+                    })
+                    results(filteredHeros)
+                }
 
+                if(searchCategory === 'power'){
 
+                    const filteredHerosByPower = globalPowersData.filter(hero => {
+                        return hero[searchValue] === "True";
+                    } )
 
-// for getting the JSON data from the server
-document.getElementById('fetchHerosButton').addEventListener('click', function() {
-    getHeroList().then(data => {
-        const firstTenHeroes = data.slice(0, 10);
-        results(firstTenHeroes);
-    }).catch(error => {
-        console.error('There has been a problem with displaying heroes:', error);
-    });
-});
+                    const filteredHeros = globalHeroData.filter(hero => {
+                        const heroNameLower = hero.name.toLowerCase();
+                        return heroNameLower.includes(filteredHerosByPower.hero_names);
+                    })
 
+                    results(filteredHeros);
+                }
 
+                if (searchCategory === 'heros'){
 
- document.getElementById('hero-search').addEventListener('keyup', function() {
-    getHeroList().then(data => {
-        const searchValue = document.getElementById('hero-search').value.trim();
-        document.getElementById('superheroCards').innerHTML = ''; // Clear the previous results
-        // Check if the searchValue is empty or not a number
-        if (searchValue === '' || isNaN(searchValue)) {
-            return; // Early return if searchValue is invalid
-        }
+                    // Convert searchValue to a number for accurate comparison
+                    const searchNumber = Number(searchValue);
 
-        // Convert searchValue to a number for accurate comparison
-        const searchNumber = Number(searchValue);
+                    // Filter the globalHeroData array
+                    const filteredHeros = globalHeroData.filter(hero => {
+                        return hero.id === searchNumber;
+                    });
 
-        // Filter the globalHeroData array
-        const filteredHeros = globalHeroData.filter(hero => {
-            return hero.id === searchNumber;
-        });
+                    // Call the results function to display the filtered heroes
+                    results(filteredHeros);
+                }
 
-        // Call the results function to display the filtered heroes
-        results(filteredHeros);
-    }).catch(error => {
-        console.error('There has been a problem with displaying heroes:', error);
-    });
+                if (searchCategory === 'powers'){
+                    const searchValue = document.getElementById('power-search').value.trim();
 
-    });
+                    document.getElementById('superheroCards').innerHTML = '';
 
+                    if (searchValue === '' || isNaN(searchValue)) {
+                        return; // Early return if searchValue is invalid
+                    }
 
-    document.getElementById('power-search').addEventListener('keyup', function() {
-        getPowerList().then(globalPowersData => {
-            const searchValue = document.getElementById('power-search').value.trim();
-            document.getElementById('superheroCards').innerHTML = '';
+                    const searchNumber = Number(searchValue); // Make sure this is the correct ID format
+                    let heroName = "";
 
-            if (searchValue === '' || isNaN(searchValue)) {
-                return; // Early return if searchValue is invalid
-            }
+                    const targetHero = globalHeroData.find(hero => hero.id === searchNumber); // Use find to get a single hero
+                    if (targetHero) {
+                        heroName = targetHero.name;
+                    }
+                    console.log(heroName);
 
-            const searchNumber = Number(searchValue); // Make sure this is the correct ID format
-            let heroName = "";
+                    const filteredPowers = globalPowersData.filter(power => power.hero_names === heroName);
 
-            const targetHero = globalHeroData.find(hero => hero.id === searchNumber); // Use find to get a single hero
-            if (targetHero) {
-                heroName = targetHero.name;
-            }
-            console.log(heroName);
-
-            const filteredPowers = globalPowersData.filter(power => power.hero_names === heroName);
-
-            if (filteredPowers.length > 0) {
-                const powersList = document.createElement('ul');
-                for (const [key, value] of Object.entries(filteredPowers[0])) {
-                    if (value === "True") {
-                        const powerItem = document.createElement('li');
-                        powerItem.textContent = key;
-                        powersList.appendChild(powerItem);
+                    if (filteredPowers.length > 0) {
+                        const powersList = document.createElement('ul');
+                        for (const [key, value] of Object.entries(filteredPowers[0])) {
+                            if (value === "True") {
+                                const powerItem = document.createElement('li');
+                                powerItem.textContent = key;
+                                powersList.appendChild(powerItem);
+                            }
+                        }
+                        document.getElementById('superheroCards').appendChild(powersList);
                     }
                 }
-                document.getElementById('superheroCards').appendChild(powersList);
-            }
 
-        }).catch(error => {
-            console.error('There has been a problem with displaying powers:', error);
-        });
+
+
+
+
     });
+
+
 
 
 

@@ -5,11 +5,39 @@ html, body {
     background-color: #f4f4f4;
 }
 
+.big-title {
+    font-family: 'Helvetica Neue', sans-serif;
+    font-size: 4em;
+    color: #fff; /* White color for the title text */
+    text-shadow: 2px 2px 4px rgba(27, 61, 195, 0.5); /* Text shadow for a 3D effect */
+    letter-spacing: 1.5px; /* Space out the letters a little for readability */
+    text-align: center; /* Center the title */
+}
+
+
+
+
+
+.background-texture {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('path-to-your-texture-or-pattern-image.png');
+    opacity: 0.1; /* Adjust the opacity to make it less intrusive */
+    pointer-events: none; /* Ensures clicks pass through to elements below */
+}
+
+
 body {
     font-family: Arial, sans-serif;
     display: flex;
     flex-direction: column; /* Set the direction to column to stack children vertically */
     align-items: center; /* This will keep children aligned in the center horizontally */
+    background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
+    color: #333;
+    font-family: 'Arial', sans-serif;
 }
 #fetchHerosButton, .search-container, #superheroCards {
     display: flex;
@@ -62,13 +90,46 @@ body {
 #search-button {
     padding: 10px 20px;
     font-size: 16px;
-    background-color: #007bff;
+    background-color: #1a3f5d; /* Dark navy blue */
     color: white;
     border: none;
+    margin-top: 10px;
     border-radius: 4px;
     cursor: pointer;
     outline: none;
     transition: background-color 0.3s;
+}
+
+#search-input {
+    padding: 10px;
+    margin-right: 5px;
+    margin-bottom: 50px;
+    font-size: 16px;
+    border: 2px solid #f2e6d9; /* Warm beige border */
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.3s;
+    margin-top: 10px;
+    background-color: #fffaf5; /* Light warm beige background */
+}
+
+#search-category {
+    padding: 10px;
+    margin-right: 5px;
+    font-size: 16px;
+    border: 2px solid #30a8a0e8;
+    border-radius: 4px;
+    background-color: #f2e6d9;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+#search-category:hover,
+#search-category:focus {
+    border-color: #1a3f5d;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 #search-button:hover {
@@ -86,15 +147,19 @@ body {
     height:auto;
     box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
   }
-  .card-list {
+
+
+.card-list {
+    height: 500px;
+    overflow-y: auto;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    list-style: none;
-    padding: 0;
-    margin: 0 auto; /* Centers the list with auto margins on the sides */
-    max-width: 600px; /* An arbitrary max-width for aesthetic purposes */
-}
+    gap: 10px;
+  }
+
 
   .card-list li {
     margin: 10px;
