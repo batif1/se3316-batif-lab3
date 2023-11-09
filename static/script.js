@@ -95,6 +95,7 @@ function search(field, query, n) {
         })
 }
 function createList(listName) {
+    let lname = listName;
     console.log("function called");
     return fetch('http://localhost:3000/api/lists', {
         method: 'POST',
@@ -105,12 +106,9 @@ function createList(listName) {
     })
     .then(response => {
         if (!response.ok) {
-            // Instead of throwing an error, reject the promise
-            return response.json().then(serverResponse => Promise.reject({
-                status: response.status,
-                body: serverResponse
-            }));
+            throw new Error(`Network response was not ok, status: ${response.status}`);
         }
+        request.innerHTML = lname+" list created";
         return console.log(response);
     });
 }
@@ -136,6 +134,7 @@ function getList(listName) {
 }
 
 function deleteList(listName) {
+    let lname = listName;
     return fetch(`http://localhost:3000/api/lists/${listName}`, {
         method: 'DELETE', // Specify the method to use
         headers: {
@@ -147,7 +146,8 @@ function deleteList(listName) {
         if (!response.ok) {
             throw new Error(`Network response was not ok, status: ${response.status}`);
         }
-        return response.json();
+        request.innerHTML = lname+" list deleted";
+        return console.log(response);
     })
     .then(data => {
         console.log('List deleted:', data);
@@ -161,6 +161,7 @@ function deleteList(listName) {
 
 
 function editList(listName, contentString){
+    let lname = listName;
     let contentArray;
     try {
       contentArray = JSON.parse(contentString);
@@ -183,6 +184,7 @@ function editList(listName, contentString){
         body: JSON.stringify(payload), // Send the payload as JSON
       })
       .then(response => {
+        request.innerHTML = lname+" list edited. To view, click view.";
         if(!response.ok){
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -328,6 +330,7 @@ document.getElementById('list-button').addEventListener('click', function () {
         if (selectedFunction === 'edit'){
             button.disabled = true;
             editList(textValue,infoValue)
+
             .then(list => {
                 console.log('List edited:', list)
             })

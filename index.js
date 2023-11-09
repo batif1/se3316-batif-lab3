@@ -182,6 +182,7 @@ app.get('/api/publishers', async (req, res) => {
     }
 });
 
+//Seaching
 app.get('/api/search/:field/:query', async (req, res) => {
     try {
         const field = req.params.field;
@@ -211,14 +212,6 @@ app.listen(port, () => {
     console.log(`Listening on port ' ${port})`);
 });
 
-
-//Test Put
-router.put('/:id', async (req, res) => {
-    const newpart = req.body;
-    console.log("Part:", newpart);
-    res.send('recieved');
-
-});
 
 app.post('/api/lists', async (req, res) => {
     const { listName } = req.body; //listName is an attribute of the JSON
