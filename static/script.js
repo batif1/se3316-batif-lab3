@@ -93,131 +93,120 @@ function search(field, query, n) {
         })
 }
 
-document.getElementById('search-button').addEventListener('click', async function() {
+function createList(listName) {
+    return fetch('http://localhost:3000/api/lists', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ listName: listName }),
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .catch(error => {
+      console.error('Error during list creation:', error);
+    });
+  }
+
+
+  function editList(listName, content){
+    return fetch('http://localhost:3000/api/lists/{listName})', {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    body: JSON.stringify({ listName: listName, content: content}),
+  })
+  .then(response => {
+    if(!response.ok){
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .catch(error =>{
+    console.error('Error during list creation:', error);
+  });
+}
+
+
+
+document.getElementById('search-button').addEventListener('click', async function () {
     const button = this;
     button.disabled = true;
     // Clear the previous results
-                document.getElementById('superheroCards').innerHTML = ''; // Clear the previous results
+    document.getElementById('superheroCards').innerHTML = ''; // Clear the previous results
 
-                const searchCategory = document.getElementById('search-category').value;
-                const searchValue = document.getElementById('search-input').value.trim().toLowerCase();
-                const searchNumber = document.getElementById('search-number').value.trim().toLowerCase();
+    const searchCategory = document.getElementById('search-category').value;
+    const searchValue = document.getElementById('search-input').value.trim().toLowerCase();
+    const searchNumber = Number(document.getElementById('search-number').value.trim().toLowerCase());
 
-                if (searchValue === '') {
-                    return; // Early return if searchValue is invalid
-                }
+    if (searchValue === '') {
+        return; // Early return if searchValue is invalid
+    }
 
-                //If the search is by ID
-                if (searchCategory === 'id'){
+    try {
+        let filteredHeros = [];
+        if (searchCategory === 'id' && !isNaN(searchValue)) {
+            filteredHeros = await search(searchCategory, searchValue, searchNumber);
+        }
+        if (searchCategory === 'race') {
+            filteredHeros = await search('Race', searchValue, searchNumber);
+        }
+        if (searchCategory === 'name') {
+            filteredHeros = await search(searchCategory, searchValue, searchNumber);
+        }
+        if (searchCategory === 'publisher') {
+            filteredHeros = await search('Publisher', searchValue, searchNumber);
+        }
+        if (searchCategory === 'power'){
+            const filteredHerosByPower = globalPowersData.filter(hero => hero[searchValue] === "True");
+            const heroNames = filteredHerosByPower.map(hero => hero.hero_names);
+            const lowercaseHeroNames = heroNames.map(name => name.toLowerCase());
+            filteredHeros = globalHeroData.filter(hero => hero.name.includes(lowercaseHeroNames));
+        }
+        results(filteredHeros);
+    } catch (error) {
+        console.error('Search failed:', error);
+    } finally {
+        button.disabled = false; // Re-enable the button after the search is complete
+    }
 
-                    if (searchCategory === 'id' && !isNaN(searchValue)) {
-                        try {
-                            const filteredHeros = await search(searchCategory, searchValue, Number(searchNumber));
-                            results(filteredHeros);
-                        } catch (error) {
-                            console.error('Search failed:', error);
-                        } finally {
-                            button.disabled = false; // Re-enable the button after the search is complete
-                        }
-                    } else {
-                        button.disabled = false; // Re-enable the button if the searchCategory is not 'id'
-                    }
-                }
-
-                if (searchCategory === 'name'){
-                    const filteredHeros = globalHeroData.filter(hero => {
-                        const heroNameLower = hero.name.toLowerCase();
-                        return heroNameLower.includes(searchValue);
-                    });
-
-                }
-
-                if (searchCategory === 'race'){
-                    const filteredHeros = globalHeroData.filter(hero => {
-                        const heroRaceLower = hero.Race.toLowerCase();
-                        return heroRaceLower.includes(searchValue);
-                    });
-
-                    results(filteredHeros);
-                }
+});
 
 
-                if(searchCategory === 'publisher'){
-                    const filteredHeros = globalHeroData.filter(hero => {
-                        const heroPublisherLower = hero.Publisher.toLowerCase();
-                        return heroPublisherLower.includes(searchValue);
-                    })
-                    results(filteredHeros)
-                }
+document.getElementById('list-button').addEventListener('click', async function () {
+    const button = this;
+    button.disabled = true;
 
-                if(searchCategory === 'power'){
+    const textValue = document.getElementById('list-input').value.trim().toLowerCase();
 
-                    const filteredHerosByPower = globalPowersData.filter(hero => {
-                        return hero[searchValue] === "True";
-                    } )
+    document.innerHTML = '';// Clear the previous results
 
-                    const filteredHeros = globalHeroData.filter(hero => {
-                        const heroNameLower = hero.name.toLowerCase();
-                        return heroNameLower.includes(filteredHerosByPower.hero_names);
-                    })
+    if (searchValue === '') {
+        return; // Early return if searchValue is invalid
+    }
 
-                    results(filteredHeros);
-                }
+    try {
+        let listInformation = [];
+        if (listInformation === 'create' && !isNaN(searchValue)) {
+            filteredHeros = await createList(textValue);
+        }
 
-                if (searchCategory === 'heros'){
+        if (searchCategory === 'edit'){
+            const filteredHerosByPower = globalPowersData.filter(hero => hero[searchValue] === "True");
+            const heroNames = filteredHerosByPower.map(hero => hero.hero_names);
+            const lowercaseHeroNames = heroNames.map(name => name.toLowerCase());
+            filteredHeros = globalHeroData.filter(hero => hero.name.includes(lowercaseHeroNames));
+        }
+        results(filteredHeros);
+    } catch (error) {
+        console.error('Search failed:', error);
+    } finally {
+        button.disabled = false; // Re-enable the button after the search is complete
+    }
 
-                    // Convert searchValue to a number for accurate comparison
-                    const searchNumber = Number(searchValue);
-
-                    // Filter the globalHeroData array
-                    const filteredHeros = globalHeroData.filter(hero => {
-                        return hero.id === searchNumber;
-                    });
-
-                    // Call the results function to display the filtered heroes
-                    results(filteredHeros);
-                }
-
-                if (searchCategory === 'powers'){
-                    const searchValue = document.getElementById('power-search').value.trim();
-
-                    document.getElementById('superheroCards').innerHTML = '';
-
-                    if (searchValue === '' || isNaN(searchValue)) {
-                        return; // Early return if searchValue is invalid
-                    }
-
-                    const searchNumber = Number(searchValue); // Make sure this is the correct ID format
-                    let heroName = "";
-
-                    const targetHero = globalHeroData.find(hero => hero.id === searchNumber); // Use find to get a single hero
-                    if (targetHero) {
-                        heroName = targetHero.name;
-                    }
-                    console.log(heroName);
-
-                    const filteredPowers = globalPowersData.filter(power => power.hero_names === heroName);
-
-                    if (filteredPowers.length > 0) {
-                        const powersList = document.createElement('ul');
-                        for (const [key, value] of Object.entries(filteredPowers[0])) {
-                            if (value === "True") {
-                                const powerItem = document.createElement('li');
-                                powerItem.textContent = key;
-                                powersList.appendChild(powerItem);
-                            }
-                        }
-                        document.getElementById('superheroCards').appendChild(powersList);
-                    }
-                }
-
-
-
-
-
-    });
-
-
-
-
-
+});
