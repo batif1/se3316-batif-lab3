@@ -31,7 +31,10 @@ const superheroSchema = new mongoose.Schema({
     listName: {
         type: String,
         required: true,
-        unique: true // Ensures that each list name is unique
+        unique: true, // Ensures that each list name is unique
+        //DATA VALIDATION
+        minlength: 3,
+        maxlength: 50
       },
       items: [Number] // Array of numbers for each list
     });
@@ -42,6 +45,8 @@ const SuperHeroListDB = mongoose.model('superHeroListDB', superheroSchema);
 module.exports = SuperHeroListDB;
 
 app.use(express.json());
+
+app.use('/', express.static('../static'));
 
 function getHeros() {
     return new Promise((resolve, reject) => {
@@ -107,7 +112,7 @@ app.use((req,res,next)=>{
 });
 
 //Serves static files
-app.use('/', express.static('static'));
+app.use('/static', express.static('static'));
 
 // Route to get a specific hero by id
 router.get('/:hero_id', async (req,res)=>{
