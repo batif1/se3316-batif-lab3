@@ -95,6 +95,7 @@ function search(field, query, n) {
         })
 }
 function createList(listName) {
+    let bashshar = "bash";
     let lname = listName;
     console.log("function called");
     return fetch('http://localhost:3000/api/lists', {
